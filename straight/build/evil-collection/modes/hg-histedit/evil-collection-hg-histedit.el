@@ -1,0 +1,1 @@
+/home/vagrant/.guix.emacs.d/straight/repos/evil-collection/modes/hg-histedit/evil-collection-hg-histedit.el

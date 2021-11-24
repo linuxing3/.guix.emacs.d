@@ -1,0 +1,1 @@
+/home/vagrant/.guix.emacs.d/straight/repos/perspective-el/perspective.el

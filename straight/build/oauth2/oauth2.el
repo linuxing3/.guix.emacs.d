@@ -1,0 +1,1 @@
+/home/vagrant/.guix.emacs.d/straight/repos/oauth2/oauth2.el

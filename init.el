@@ -209,6 +209,8 @@
                (remove evil-collection-mode-list) 'org-present)
       (evil-collection-init)))
 
+  (setup (:pkg diminish))
+
   (setup (:pkg which-key)
     (diminish 'which-key-mode)
     (which-key-mode)
@@ -280,21 +282,21 @@
   (pcase system-type
     ((or 'gnu/linux 'windows-nt 'cygwin)
      (set-face-attribute 'default nil
-                         :font "JetBrains Mono"
+                         :font "Hack"
                          :weight 'light
                          :height (dw/system-settings-get 'emacs/default-face-size)))
-    ('darwin (set-face-attribute 'default nil :font "Fira Mono" :height 170)))
+    ('darwin (set-face-attribute 'default nil :font "Hack" :height 170)))
 
   ;; Set the fixed pitch face
   (set-face-attribute 'fixed-pitch nil
-                      :font "JetBrains Mono"
+                      :font "Hack"
                       :weight 'light
                       :height (dw/system-settings-get 'emacs/fixed-face-size))
 
   ;; Set the variable pitch face
   (set-face-attribute 'variable-pitch nil
                       ;; :font "Cantarell"
-                      :font "Iosevka Aile"
+                      :font "Hack"
                       :height (dw/system-settings-get 'emacs/variable-face-size)
                       :weight 'light)
 
@@ -303,8 +305,6 @@
 
   (setq display-time-format "%l:%M %p %b %y"
         display-time-default-load-average nil)
-
-  (setup (:pkg diminish))
 
     ;; You must run (all-the-icons-install-fonts) one time after
     ;; installing this package!
@@ -340,7 +340,7 @@
     (:option alert-default-style 'notifications))
 
   (setup (:pkg super-save)
-    (:delay)
+    ;; (:delay)
     (:when-loaded
       (super-save-mode +1)
       (diminish 'super-save-mode)
@@ -370,11 +370,6 @@
       ("Asia/Shanghai" "Shanghai")
       ("Asia/Kolkata" "Hyderabad")))
   (setq display-time-world-time-format "%a, %d %b %I:%M %p %Z")
-
-  (unless (or dw/is-termux
-              (eq system-type 'windows-nt))
-    (setq epa-pinentry-mode 'loopback)
-    (pinentry-start))
 
   ;; Set default connection mode to SSH
   (setq tramp-default-method "ssh")
@@ -475,31 +470,6 @@
   ;;(put 'evil-ex-history 'history-length 50)
   ;;(put 'kill-ring 'history-length 25))
 
-  (defun dw/minibuffer-backward-kill (arg)
-    "When minibuffer is completing a file name delete up to parent
-  folder, otherwise delete a word"
-    (interactive "p")
-    (if minibuffer-completing-file-name
-        ;; Borrowed from https://github.com/raxod502/selectrum/issues/498#issuecomment-803283608
-        (if (string-match-p "/." (minibuffer-contents))
-            (zap-up-to-char (- arg) ?/)
-          (delete-minibuffer-contents))
-        (delete-word (- arg))))
-
-  (setup (:pkg vertico)
-    ;; :straight '(vertico :host github
-    ;;                     :repo "minad/vertico"
-    ;;                     :branch "main")
-    (vertico-mode)
-    (:with-map vertico-map
-      (:bind "C-j" vertico-next
-             "C-k" vertico-previous
-             "C-f" vertico-exit))
-    (:with-map minibuffer-local-map
-      (:bind "M-h" dw/minibuffer-backward-kill))
-    (:option vertico-cycle t)
-    (custom-set-faces '(vertico-current ((t (:background "#3a3f5a"))))))
-
   (setup (:pkg corfu :host github :repo "minad/corfu")
     (:with-map corfu-map
       (:bind "C-j" corfu-next
@@ -531,30 +501,6 @@
     (:option consult-project-root-function #'dw/get-project-root
              completion-in-region-function #'consult-completion-in-region))
 
-  (setup (:pkg consult-dir :straight t)
-    (:global "C-x C-d" consult-dir)
-    (:with-map vertico-map
-      (:bind "C-x C-d" consult-dir
-             "C-x C-j" consult-dir-jump-file))
-    (:option consult-dir-project-list-function nil))
-
-  ;; Thanks Karthik!
-  (defun eshell/z (&optional regexp)
-    "Navigate to a previously visited directory in eshell."
-    (let ((eshell-dirs (delete-dups (mapcar 'abbreviate-file-name
-                                            (ring-elements eshell-last-dir-ring)))))
-      (cond
-       ((and (not regexp) (featurep 'consult-dir))
-        (let* ((consult-dir--source-eshell `(:name "Eshell"
-                                                   :narrow ?e
-                                                   :category file
-                                                   :face consult-file
-                                                   :items ,eshell-dirs))
-               (consult-dir-sources (cons consult-dir--source-eshell consult-dir-sources)))
-          (eshell/cd (substring-no-properties (consult-dir--pick "Switch directory: ")))))
-       (t (eshell/cd (if regexp (eshell-find-previous-directory regexp)
-                       (completing-read "cd: " eshell-dirs)))))))
-
   (setup (:pkg marginalia)
     (:option marginalia-annotators '(marginalia-annotators-heavy
                                      marginalia-annotators-light
@@ -573,9 +519,6 @@
             (which-key--show-keymap "Embark" map nil nil 'no-paging)
             #'which-key--hide-popup-ignore-command)
           embark-become-indicator embark-action-indicator))
-
-  ;; Binding will be set by desktop config
-  (setup (:pkg app-launcher))
 
   (setup (:pkg avy)
     (dw/leader-key-def
@@ -879,7 +822,7 @@
     (:also-load org-indent)
     (:when-loaded
       ;; Increase the size of various headings
-      (set-face-attribute 'org-document-title nil :font "Iosevka Aile" :weight 'bold :height 1.3)
+      (set-face-attribute 'org-document-title nil :font "Hack" :weight 'bold :height 1.3)
     
       (dolist (face '((org-level-1 . 1.2)
                       (org-level-2 . 1.1)
@@ -889,7 +832,7 @@
                       (org-level-6 . 1.1)
                       (org-level-7 . 1.1)
                       (org-level-8 . 1.1)))
-        (set-face-attribute (car face) nil :font "Iosevka Aile" :weight 'medium :height (cdr face)))
+        (set-face-attribute (car face) nil :font "Hack" :weight 'medium :height (cdr face)))
   
       ;; Ensure that anything that should be fixed-pitch in Org files appears that way
       (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
@@ -964,24 +907,6 @@
   (setup (:pkg org-make-toc)
     (:hook-into org-mode))
 
-  (setup (:pkg org-caldav)
-    (:delay)
-    (setq org-caldav-url "https://caldav.fastmail.com/dav/calendars/user/daviwil@fastmail.fm/"
-          ;; org-caldav-files '("~/Notes/Calendar/Personal.org" "~/Notes/Calendar/Work.org")
-          ;; org-caldav-inbox '("~/Notes/Calendar/Personal.org" "~/Notes/Calendar/Work.org")
-          org-caldav-calendar-id "fe098bfb-0726-4e10-bff2-55f8278c8a56"
-          org-caldav-files '("~/Notes/Calendar/Personal.org")
-          org-caldav-inbox "~/Notes/Calendar/PersonalInbox.org"
-          org-caldav-calendars
-           '((:calendar-id "fe098bfb-0726-4e10-bff2-55f8278c8a56"
-              :files ("~/Notes/Calendar/Personal.org")
-              :inbox "~/Notes/Calendar/PersonalInbox.org"))
-             ;; (:calendar-id "8f150437-cc57-4ba0-9200-d1d98389e2e4"
-             ;;  :files ("~/Notes/Calendar/Work.org")
-             ;;  :inbox "~/Notes/Calendar/Work.org"))
-          org-caldav-delete-org-entries 'always
-          org-caldav-delete-calendar-entries 'never))
-
   ;; (use-package org-wild-notifier
   ;;   :after org
   ;;   :config
@@ -1006,7 +931,7 @@
                                        (org-block (:height 1.25) org-block)
                                        (org-block-begin-line (:height 0.7) org-block)))
     (setq header-line-format " ")
-    (org-appear-mode -1)
+    ;; (org-appear-mode -1)
     (org-display-inline-images)
     (dw/org-present-prepare-slide)
     (dw/kill-panel))
@@ -1016,7 +941,7 @@
     (setq header-line-format nil)
     (org-present-small)
     (org-remove-inline-images)
-    (org-appear-mode 1)
+    ;; (org-appear-mode 1)
     (dw/start-panel))
 
   (defun dw/org-present-prev ()
@@ -1061,24 +986,6 @@
           (org-roam-capture-templates (list (append (car org-roam-capture-templates)
                                                     '(:immediate-finish t)))))
       (apply #'org-roam-node-insert args)))
-  
-  (defun dw/org-roam-goto-month ()
-    (interactive)
-    (org-roam-capture- :goto (when (org-roam-node-from-title-or-alias (format-time-string "%Y-%B")) '(4))
-                       :node (org-roam-node-create)
-                       :templates '(("m" "month" plain "\n* Goals\n\n%?* Summary\n\n"
-                                     :if-new (file+head "%<%Y-%B>.org"
-                                                        "#+title: %<%Y-%B>\n#+filetags: Project\n")
-                                     :unnarrowed t))))
-  
-  (defun dw/org-roam-goto-year ()
-    (interactive)
-    (org-roam-capture- :goto (when (org-roam-node-from-title-or-alias (format-time-string "%Y")) '(4))
-                       :node (org-roam-node-create)
-                       :templates '(("y" "year" plain "\n* Goals\n\n%?* Summary\n\n"
-                                     :if-new (file+head "%<%Y>.org"
-                                                        "#+title: %<%Y>\n#+filetags: Project\n")
-                                     :unnarrowed t))))
   
   (defun dw/org-roam-capture-task ()
     (interactive)
@@ -1168,754 +1075,14 @@
     (:bind "C-c n i" org-roam-node-insert
            "C-c n I" org-roam-insert-immediate))
 
-  (setup (:pkg org-appear)
-    (:hook-into org-mode))
-
-  (setup (:pkg magit)
-    (:also-load magit-todos)
-    (:global "C-M-;" magit-status)
-    (:option magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-  (setup (:pkg forge)
-    (:disabled))
-
-  (setup (:pkg magit-todos))
-
-  (setup (:pkg git-link)
-    (setq git-link-open-in-browser t)
-    (dw/leader-key-def
-      "gL"  'git-link))
-
-  (setup (:pkg git-gutter :straight git-gutter-fringe)
-    (:hook-into text-mode prog-mode)
-    (setq git-gutter:update-interval 2)
-    (unless dw/is-termux
-      (require 'git-gutter-fringe)
-      (set-face-foreground 'git-gutter-fr:added "LightGreen")
-      (fringe-helper-define 'git-gutter-fr:added nil
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        ".........."
-        ".........."
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        ".........."
-        ".........."
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        "XXXXXXXXXX")
-
-      (set-face-foreground 'git-gutter-fr:modified "LightGoldenrod")
-      (fringe-helper-define 'git-gutter-fr:modified nil
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        ".........."
-        ".........."
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        ".........."
-        ".........."
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        "XXXXXXXXXX")
-
-      (set-face-foreground 'git-gutter-fr:deleted "LightCoral")
-      (fringe-helper-define 'git-gutter-fr:deleted nil
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        ".........."
-        ".........."
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        ".........."
-        ".........."
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"
-        "XXXXXXXXXX"))
-
-    ;; These characters are used in terminal mode
-    (setq git-gutter:modified-sign "≡")
-    (setq git-gutter:added-sign "≡")
-    (setq git-gutter:deleted-sign "≡")
-    (set-face-foreground 'git-gutter:added "LightGreen")
-    (set-face-foreground 'git-gutter:modified "LightGoldenrod")
-    (set-face-foreground 'git-gutter:deleted "LightCoral"))
-
-  (defun dw/switch-project-action ()
-    "Switch to a workspace with the project name and start `magit-status'."
-    ;; TODO: Switch to EXWM workspace 1?
-    (persp-switch (projectile-project-name))
-    (magit-status))
-
-  (setup (:pkg projectile)
-    (when (file-directory-p "~/Projects/Code")
-      (setq projectile-project-search-path '("~/Projects/Code")))
-    (setq projectile-switch-project-action #'dw/switch-project-action)
-
-    (projectile-mode)
-
-    (:global "C-M-p" projectile-find-file
-             "C-c p" projectile-command-map)
-
-    (dw/leader-key-def
-      "pf"  'projectile-find-file
-      "ps"  'projectile-switch-project
-      "pF"  'consult-ripgrep
-      "pp"  'projectile-find-file
-      "pc"  'projectile-compile-project
-      "pd"  'projectile-dired))
-
-  (dir-locals-set-class-variables 'Atom
-    `((nil . ((projectile-project-name . "Atom")
-              (projectile-project-compilation-dir . nil)
-              (projectile-project-compilation-cmd . "script/build")))))
-
-  (dir-locals-set-directory-class (expand-file-name "~/Projects/Code/atom") 'Atom)
-
-  (setup (:pkg lsp-mode :straight t)
-    (:hook-into typescript-mode js2-mode web-mode)
-    (:bind "TAB" completion-at-point)
-    (:option lsp-headerline-breadcrumb-enable nil)
-
-    (dw/leader-key-def
-      "l" '(:ignore t :which-key "lsp")
-      "ld" 'xref-find-definitions
-      "lr" 'xref-find-references
-      "ln" 'lsp-ui-find-next-reference
-      "lp" 'lsp-ui-find-prev-reference
-      "ls" 'counsel-imenu
-      "le" 'lsp-ui-flycheck-list
-      "lS" 'lsp-ui-sideline-mode
-      "lX" 'lsp-execute-code-action))
-
-  (setup (:pkg lsp-ui :straight t)
-    (:hook-into lsp-mode)
-    (:when-loaded
-     (progn
-       (setq lsp-ui-sideline-enable t)
-       (setq lsp-ui-sideline-show-hover nil)
-       (setq lsp-ui-doc-position 'bottom)
-       (lsp-ui-doc-show))))
-
-  (setup (:pkg eglot)
-    (:disabled)
-    (add-hook 'typescript-mode-hook #'eglot-ensure))
-
-  (setup (:pkg dap-mode :straight t)
-    ;; Assuming that `dap-debug' will invoke all this
-    (:when-loaded
-      (:option lsp-enable-dap-auto-configure nil)
-      (dap-ui-mode 1)
-      (dap-tooltip-mode 1)
-      (dap-node-setup)))
-
-  (setup (:pkg lispy)
-    (:hook-into emacs-lisp-mode scheme-mode))
-
-  (setup (:pkg lispyville)
-    (:hook-into lispy-mode)
-    (:when-loaded
-      (lispyville-set-key-theme '(operators c-w additional
-                                  additional-movement slurp/barf-cp
-                                  prettify))))
-
-  (setup (:pkg sly)
-    (:disabled)
-    (:file-match "\\.lisp\\'"))
-
-  (setup (:pkg slime)
-    (:disabled)
-    (:file-match "\\.lisp\\'"))
-
-  ;; Include .sld library definition files
-  (setup (:pkg scheme-mode)
-    (:file-match "\\.sld\\'"))
-
-  (setup (:pkg typescript-mode)
-    (:file-match "\\.ts\\'")
-    (setq typescript-indent-level 2))
-
-  (defun dw/set-js-indentation ()
-    (setq-default js-indent-level 2)
-    (setq-default evil-shift-width js-indent-level)
-    (setq-default tab-width 2))
-
-  (setup (:pkg js2-mode)
-    (:file-match "\\.jsx?\\'")
-
-    ;; Use js2-mode for Node scripts
-    (add-to-list 'magic-mode-alist '("#!/usr/bin/env node" . js2-mode))
-
-    ;; Don't use built-in syntax checking
-    (setq js2-mode-show-strict-warnings nil)
-
-    ;; Set up proper indentation in JavaScript and JSON files
-    (add-hook 'js2-mode-hook #'dw/set-js-indentation)
-    (add-hook 'json-mode-hook #'dw/set-js-indentation))
-
-  (setup (:pkg apheleia)
-    (apheleia-global-mode +1))
-
-  (setup (:pkg ccls)
-    (:hook lsp)
-    (:hook-into c-mode c++-mode objc-mode cuda-mode))
-
-  (setup (:pkg go-mode)
-    (:hook lsp-deferred))
-
-  (setup (:pkg rust-mode)
-    (:file-match "\\.rs\\'")
-    (setq rust-format-on-save t))
-
-  (setup (:pkg cargo :straight t))
-
-  (setup emacs-lisp-mode
-    (:hook flycheck-mode))
-
-  (setup (:pkg helpful)
-    (:option counsel-describe-function-function #'helpful-callable
-             counsel-describe-variable-function #'helpful-variable)
-    (:global [remap describe-function] helpful-function
-             [remap describe-symbol] helpful-symbol
-             [remap describe-variable] helpful-variable
-             [remap describe-command] helpful-command
-             [remap describe-key] helpful-key))
-
-  (dw/leader-key-def
-    "e"   '(:ignore t :which-key "eval")
-    "eb"  '(eval-buffer :which-key "eval buffer"))
-
-  (dw/leader-key-def
-    :keymaps '(visual)
-    "er" '(eval-region :which-key "eval region"))
-
-  ;; TODO: This causes issues for some reason.
-  ;; :bind (:map geiser-mode-map
-  ;;        ("TAB" . completion-at-point))
-
-  (setup (:pkg geiser)
-    ;; (setq geiser-default-implementation 'gambit)
-    ;; (setq geiser-active-implementations '(gambit guile))
-    ;; (setq geiser-implementations-alist '(((regexp "\\.scm$") gambit)
-    ;;                                      ((regexp "\\.sld") gambit)))
-    ;; (setq geiser-repl-default-port 44555) ; For Gambit Scheme
-    (setq geiser-default-implementation 'guile)
-    (setq geiser-active-implementations '(guile))
-    (setq geiser-repl-default-port 44555) ; For Gambit Scheme
-    (setq geiser-implementations-alist '(((regexp "\\.scm$") guile))))
-
-  (setup (:pkg zig-mode :straight t)
-    (:disabled)
-    (add-to-list 'lsp-language-id-configuration '(zig-mode . "zig"))
-    (:load-after lsp-mode
-      (lsp-register-client
-        (make-lsp-client
-          :new-connection (lsp-stdio-connection "~/Projects/Code/zls/zig-cache/bin/zls")
-          :major-modes '(zig-mode)
-          :server-id 'zls))))
-
-  (setup (:pkg markdown-mode)
-    (setq markdown-command "marked")
-    (:file-match "\\.md\\'")
-    (:when-loaded
-      (dolist (face '((markdown-header-face-1 . 1.2)
-                      (markdown-header-face-2 . 1.1)
-                      (markdown-header-face-3 . 1.0)
-                      (markdown-header-face-4 . 1.0)
-                      (markdown-header-face-5 . 1.0)))
-        (set-face-attribute (car face) nil :weight 'normal :height (cdr face)))))
-
-  (setup (:pkg web-mode)
-    (:file-match "(\\.\\(html?\\|ejs\\|tsx\\|jsx\\)\\'")
-    (setq-default web-mode-code-indent-offset 2)
-    (setq-default web-mode-markup-indent-offset 2)
-    (setq-default web-mode-attribute-indent-offset 2))
-
-  ;; 1. Start the server with `httpd-start'
-  ;; 2. Use `impatient-mode' on any buffer
-  (setup (:pkg impatient-mode :straight t))
-  (setup (:pkg skewer-mode :straight t))
-
-  (setup (:pkg yaml-mode)
-    (:file-match "\\.ya?ml\\'"))
-
-  (setup adl-mode
-    (:file-match "\\.cadl\\'")
-    (:hook lsp-deferred)
-    (:bind "C-c C-c" recompile))
-
-  (setup compile
-    (:option compilation-scroll-output t))
-
-  (defun dw/auto-recompile-buffer ()
-    (interactive)
-    (if (member #'recompile after-save-hook)
-        (remove-hook 'after-save-hook #'recompile t)
-      (add-hook 'after-save-hook #'recompile nil t)))
-
-  (setup (:pkg flycheck)
-    (:hook-into lsp-mode))
-
-  (setup (:pkg yasnippet)
-    (:disabled)
-    (require 'yasnippet)
-    (add-hook 'prog-mode-hook #'yas-minor-mode)
-    (yas-reload-all))
-
-  (setup (:pkg smartparens)
-    (:hook-into prog-mode))
-
-  (setup (:pkg rainbow-delimiters)
-    (:hook-into prog-mode))
-
-  (setup (:pkg rainbow-mode)
-    (:hook-into org-mode
-                emacs-lisp-mode
-                web-mode
-                typescript-mode
-                js2-mode))
-
-  ;; TODO: Figure out how to query for 'done' bugs
-  (defun dw/debbugs-guix-patches ()
-    (interactive)
-    (debbugs-gnu '("serious" "important" "normal") "guix-patches" nil t))
-
-  ;; (setup substratic-forge
-  ;;   :if (file-exists-p "~/Projects/Code/crash-the-stack/lib/github.com/substratic/forge/@/")
-  ;;   :load-path "~/Projects/Code/crash-the-stack/lib/github.com/substratic/forge/@/"
-  ;;   :bind (:map substratic-forge-mode-map
-  ;;          ("C-c C-m" . substratic-reload-module)))
-
-  (add-to-list 'auto-mode-alist '("\\.info\\'" . Info-on-current-buffer))
-
-  (setup (:pkg posframe))
-  (setup (:pkg command-log-mode :straight t))
-
-  (setq dw/command-window-frame nil)
-
-  (defun dw/toggle-command-window ()
-    (interactive)
-    (if dw/command-window-frame
-        (progn
-          (posframe-delete-frame clm/command-log-buffer)
-          (setq dw/command-window-frame nil))
-        (progn
-          (global-command-log-mode t)
-          (with-current-buffer
-            (setq clm/command-log-buffer
-                  (get-buffer-create " *command-log*"))
-            (text-scale-set -1))
-          (setq dw/command-window-frame
-            (posframe-show
-              clm/command-log-buffer
-              :position `(,(- (x-display-pixel-width) 590) . 15)
-              :width 38
-              :height 5
-              :min-width 38
-              :min-height 5
-              :internal-border-width 2
-              :internal-border-color "#c792ea"
-              :override-parameters '((parent-frame . nil)))))))
-
-  (dw/leader-key-def
-   "tc" 'dw/toggle-command-window)
-
-  (setup (:pkg keycast)
-    ;; This works with doom-modeline, inspired by this comment:
-    ;; https://github.com/tarsius/keycast/issues/7#issuecomment-627604064
-    (define-minor-mode keycast-mode
-      "Show current command and its key binding in the mode line."
-      :global t
-      (require 'keycast)
-      (if keycast-mode
-          (add-hook 'pre-command-hook 'keycast-mode-line-update)
-          (remove-hook 'pre-command-hook 'keycast-mode-line-update)))
-
-    (add-to-list 'global-mode-string '("" mode-line-keycast " ")))
-
-  (setup (:pkg obs-websocket :guix "emacs-obs-websocket-el")
-    (require 'obs-websocket)
-    (defhydra dw/stream-keys (:exit t)
-      "Stream Commands"
-      ("c" (obs-websocket-connect) "Connect")
-      ("l" (obs-websocket-send "SetCurrentScene" :scene-name "Logo Screen") "Logo Screen" :exit nil)
-      ("s" (obs-websocket-send "SetCurrentScene" :scene-name "Screen") "Screen")
-      ("w" (obs-websocket-send "SetCurrentScene" :scene-name "Webcam") "Webcam")
-      ("p" (obs-websocket-send "SetCurrentScene" :scene-name "Sponsors") "Sponsors")
-      ("e" (obs-websocket-send "SetCurrentScene" :scene-name "Thanks For Watching") "Thanks For Watching")
-      ("Ss" (obs-websocket-send "StartStreaming") "Start Stream")
-      ("Se" (obs-websocket-send "StopStreaming") "End Stream"))
-  
-    ;; This is Super-s (for now)
-    (global-set-key (kbd "s-s") #'dw/stream-keys/body))
-
-  (setup (:pkg live-crafter
-               :host github
-               :repo "SystemCrafters/live-crafter")
-    (:load-after mpv))
-
-  (dw/leader-key-def
-    "a"  '(:ignore t :which-key "apps"))
-
-  ;; Only fetch mail on zerocool
-  (setq dw/mail-enabled (member system-name '("zerocool" "acidburn")))
-  (setq dw/mu4e-inbox-query nil)
-  (when dw/mail-enabled
-    (require 'dw-mail))
-
-  (setup (:pkg ledger-mode)
-    (:file-match "\\.lgr\\'")
-    (:bind "TAB" completion-at-point)
-    (:option
-     ledger-reports '(("bal" "%(binary) -f %(ledger-file) bal")
-                      ("bal this quarter" "%(binary) -f %(ledger-file) --period \"this quarter\" bal")
-                      ("bal last quarter" "%(binary) -f %(ledger-file) --period \"last quarter\" bal")
-                      ("reg" "%(binary) -f %(ledger-file) reg")
-                      ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
-                      ("account" "%(binary) -f %(ledger-file) reg %(account)"))))
-
-  (setup (:pkg hledger-mode :straight t)
-    (:bind "TAB" completion-at-point))
-
-  (defun read-file (file-path)
-    (with-temp-buffer
-      (insert-file-contents file-path)
-      (buffer-string)))
-
-  (defun dw/get-current-package-version ()
-    (interactive)
-    (let ((package-json-file (concat (eshell/pwd) "/package.json")))
-      (when (file-exists-p package-json-file)
-        (let* ((package-json-contents (read-file package-json-file))
-               (package-json (ignore-errors (json-parse-string package-json-contents))))
-          (when package-json
-            (ignore-errors (gethash "version" package-json)))))))
-
-  (defun dw/map-line-to-status-char (line)
-    (cond ((string-match "^?\\? " line) "?")))
-
-  (defun dw/get-git-status-prompt ()
-    (let ((status-lines (cdr (process-lines "git" "status" "--porcelain" "-b"))))
-      (seq-uniq (seq-filter 'identity (mapcar 'dw/map-line-to-status-char status-lines)))))
-
-  (defun dw/get-prompt-path ()
-    (let* ((current-path (eshell/pwd))
-           (git-output (shell-command-to-string "git rev-parse --show-toplevel"))
-           (has-path (not (string-match "^fatal" git-output))))
-      (if (not has-path)
-        (abbreviate-file-name current-path)
-        (string-remove-prefix (file-name-directory git-output) current-path))))
-
-  ;; This prompt function mostly replicates my custom zsh prompt setup
-  ;; that is powered by github.com/denysdovhan/spaceship-prompt.
-  (defun dw/eshell-prompt ()
-    (let ((current-branch (magit-get-current-branch))
-          (package-version (dw/get-current-package-version)))
-      (concat
-       "\n"
-       (propertize (system-name) 'face `(:foreground "#62aeed"))
-       (propertize " ॐ " 'face `(:foreground "white"))
-       (propertize (dw/get-prompt-path) 'face `(:foreground "#82cfd3"))
-       (when current-branch
-         (concat
-          (propertize " • " 'face `(:foreground "white"))
-          (propertize (concat " " current-branch) 'face `(:foreground "#c475f0"))))
-       (when package-version
-         (concat
-          (propertize " @ " 'face `(:foreground "white"))
-          (propertize package-version 'face `(:foreground "#e8a206"))))
-       (propertize " • " 'face `(:foreground "white"))
-       (propertize (format-time-string "%I:%M:%S %p") 'face `(:foreground "#5a5b7f"))
-       (if (= (user-uid) 0)
-           (propertize "\n#" 'face `(:foreground "red2"))
-         (propertize "\nλ" 'face `(:foreground "#aece4a")))
-       (propertize " " 'face `(:foreground "white")))))
-
-  (unless dw/is-termux
-    (add-hook 'eshell-banner-load-hook
-              (lambda ()
-                 (setq eshell-banner-message
-                       (concat "\n" (propertize " " 'display (create-image "~/.dotfiles/.guix.emacs.d/images/flux_banner.png" 'png nil :scale 0.2 :align-to "center")) "\n\n")))))
-
-  (defun dw/eshell-configure ()
-    ;; Make sure magit is loaded
-    (require 'magit)
-
-    (require 'evil-collection-eshell)
-    (evil-collection-eshell-setup)
-
-    (setup (:pkg xterm-color))
-
-    (push 'eshell-tramp eshell-modules-list)
-    (push 'xterm-color-filter eshell-preoutput-filter-functions)
-    (delq 'eshell-handle-ansi-color eshell-output-filter-functions)
-
-    ;; Save command history when commands are entered
-    (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
-
-    (add-hook 'eshell-before-prompt-hook
-              (lambda ()
-                (setq xterm-color-preserve-properties t)))
-
-    ;; Truncate buffer for performance
-    (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
-
-    ;; We want to use xterm-256color when running interactive commands
-    ;; in eshell but not during other times when we might be launching
-    ;; a shell command to gather its output.
-    (add-hook 'eshell-pre-command-hook
-              (lambda () (setenv "TERM" "xterm-256color")))
-    (add-hook 'eshell-post-command-hook
-              (lambda () (setenv "TERM" "dumb")))
-
-    ;; Use completion-at-point to provide completions in eshell
-    (define-key eshell-mode-map (kbd "<tab>") 'completion-at-point)
-
-    ;; Initialize the shell history
-    (eshell-hist-initialize)
-
-    (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-r") 'consult-history)
-    (evil-define-key '(normal insert visual) eshell-mode-map (kbd "<home>") 'eshell-bol)
-    (evil-normalize-keymaps)
-
-    (setenv "PAGER" "cat")
-
-    (setq eshell-prompt-function      'dw/eshell-prompt
-          eshell-prompt-regexp        "^λ "
-          eshell-history-size         10000
-          eshell-buffer-maximum-lines 10000
-          eshell-hist-ignoredups t
-          eshell-highlight-prompt t
-          eshell-scroll-to-bottom-on-input t
-          eshell-prefer-lisp-functions nil))
-
-  (setup eshell
-    (add-hook 'eshell-first-time-mode-hook #'dw/eshell-configure)
-    (setq eshell-directory-name "~/.dotfiles/.guix.emacs.d/eshell/"
-          eshell-aliases-file (expand-file-name "~/.dotfiles/.guix.emacs.d/eshell/alias")))
-
-  (setup (:pkg eshell-z)
-    (:disabled) ;; Using consult-dir for this now
-    (add-hook 'eshell-mode-hook (lambda () (require 'eshell-z)))
-    (add-hook 'eshell-z-change-dir-hook (lambda () (eshell/pushd (eshell/pwd)))))
-
-  (setup (:pkg exec-path-from-shell)
-    (setq exec-path-from-shell-check-startup-files nil)
-    (when (memq window-system '(mac ns x))
-      (exec-path-from-shell-initialize)))
-
-  (dw/leader-key-def
-    "SPC" 'eshell)
-
-  (with-eval-after-load 'esh-opt
-    (setq eshell-destroy-buffer-when-process-dies t)
-    (setq eshell-visual-commands '("htop" "zsh" "vim" "rush")))
-
-  (setup (:pkg fish-completion)
-    (:disabled)
-    (:hook-into eshell-mode))
-
-  (setup (:pkg eshell-syntax-highlighting)
-    (:load-after eshell
-      (eshell-syntax-highlighting-global-mode +1)))
-
-  (defun dw/esh-autosuggest-setup ()
-    (require 'company)
-    (set-face-foreground 'company-preview-common "#4b5668")
-    (set-face-background 'company-preview nil))
-
-  (setup (:pkg esh-autosuggest)
-    (require 'esh-autosuggest)
-    (setq esh-autosuggest-delay 0.5)
-    (:hook dw/esh-autosuggest-setup)
-    (:hook-into eshell-mode))
-
-  (setup (:pkg eshell-toggle)
-    (:disabled)
-    (:global "C-M-'" eshell-toggle)
-    (:option eshell-toggle-size-fraction 3
-             eshell-toggle-use-projectile-root t
-             eshell-toggle-run-command nil))
-
-  (setup (:pkg vterm)
-    (:when-loaded
-     (progn
-       (setq vterm-max-scrollback 10000)
-       (advice-add 'evil-collection-vterm-insert :before #'vterm-reset-cursor-point))))
-
-  ;; Don't let ediff break EXWM, keep it in one frame
-  (setq ediff-diff-options "-w"
-        ediff-split-window-function 'split-window-horizontally
-        ediff-window-setup-function 'ediff-setup-windows-plain)
-
-  (setup (:pkg tracking)
-    (require 'tracking)
-    (setq tracking-faces-priorities '(all-the-icons-pink
-                                      all-the-icons-lgreen
-                                      all-the-icons-lblue))
-    (setq tracking-frame-behavior nil))
-
-  ;; Add faces for specific people in the modeline.  There must
-  ;; be a better way to do this.
-  (defun dw/around-tracking-add-buffer (original-func buffer &optional faces)
-    (let* ((name (buffer-name buffer))
-           (face (cond ((s-contains? "Maria" name) '(all-the-icons-pink))
-                       ((s-contains? "Alex " name) '(all-the-icons-lgreen))
-                       ((s-contains? "Steve" name) '(all-the-icons-lblue))))
-           (result (apply original-func buffer (list face))))
-      (dw/update-polybar-telegram)
-      result))
-
-  (defun dw/after-tracking-remove-buffer (buffer)
-    (dw/update-polybar-telegram))
-
-  (advice-add 'tracking-add-buffer :around #'dw/around-tracking-add-buffer)
-  (advice-add 'tracking-remove-buffer :after #'dw/after-tracking-remove-buffer)
-  (advice-remove 'tracking-remove-buffer #'dw/around-tracking-remove-buffer)
-
-  ;; Advise exwm-workspace-switch so that we can more reliably clear tracking buffers
-  ;; NOTE: This is a hack and I hate it.  It'd be great to find a better solution.
-  (defun dw/before-exwm-workspace-switch (frame-or-index &optional force)
-    (when (fboundp 'tracking-remove-visible-buffers)
-      (when (eq exwm-workspace-current-index 0)
-        (tracking-remove-visible-buffers))))
-
-  (advice-add 'exwm-workspace-switch :before #'dw/before-exwm-workspace-switch)
-
-  (setup (:pkg telega)
-    (setq telega-user-use-avatars nil
-          telega-use-tracking-for '(any pin unread)
-          telega-emoji-use-images t
-          telega-completing-read-function #'ivy-completing-read
-          telega-msg-rainbow-title nil
-          telega-chat-fill-column 75))
-
-  (defun dw/on-erc-track-list-changed ()
-    (dolist (buffer erc-modified-channels-alist)
-      (tracking-add-buffer (car buffer))))
-
-  (setup (:pkg erc-hl-nicks)
-    (:load-after erc))
-
-  (setup (:pkg erc-image)
-    (:load-after erc))
-
-  (setup erc
-    (add-hook 'erc-track-list-changed-hook #'dw/on-erc-track-list-changed)
-    (setq
-        erc-nick "daviwil"
-        erc-user-full-name "David Wilson"
-        erc-prompt-for-password nil
-        erc-auto-query 'bury
-        erc-join-buffer 'bury
-        erc-track-shorten-start 8
-        erc-interpret-mirc-color t
-        erc-rename-buffers t
-        erc-kill-buffer-on-part t
-        erc-track-exclude '("#twitter_daviwil")
-        erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE" "AWAY")
-        erc-track-enable-keybindings nil
-        erc-track-visibility nil ; Only use the selected frame for visibility
-        erc-track-exclude-server-buffer t
-        erc-fill-column 120
-        erc-fill-function 'erc-fill-static
-        erc-fill-static-center 20
-        erc-image-inline-rescale 400
-        erc-server-reconnect-timeout 10
-        erc-server-reconnect-attempts 5
-        erc-autojoin-channels-alist '(("irc.libera.chat" "#systemcrafters" "#emacs" "#guix"))
-        erc-quit-reason (lambda (s) (or s "Ejecting from cyberspace"))
-        erc-modules
-        '(autoaway autojoin button completion fill irccontrols keep-place
-            list match menu move-to-prompt netsplit networks noncommands
-            readonly ring stamp track image hl-nicks notify notifications))
-
-    (add-hook 'erc-join-hook 'bitlbee-identify)
-    (defun bitlbee-identify ()
-      "If we're on the bitlbee server, send the identify command to the &bitlbee channel."
-      (when (and (string= "127.0.0.1" erc-session-server)
-                 (string= "&bitlbee" (buffer-name)))
-        (erc-message "PRIVMSG" (format "%s identify %s"
-                                       (erc-default-target)
-                                       (password-store-get "IRC/Bitlbee"))))))
-
-  (defun dw/connect-irc ()
-    (interactive)
-    (erc-tls :server "crafter.mx" :port 3110 :nick "daviwil"))
-    ;; (erc
-    ;;    :server "127.0.0.1" :port 6667
-    ;;    :nick "daviwil" :password (password-store-get "IRC/Bitlbee")))
-
-  ;; Thanks karthik!
-  (defun erc-image-create-image (file-name)
-    "Create an image suitably scaled according to the setting of
-  'ERC-IMAGE-RESCALE."
-    (let* ((positions (window-inside-absolute-pixel-edges))
-          (width (- (nth 2 positions) (nth 0 positions)))
-          (height (- (nth 3 positions) (nth 1 positions)))
-          (image (create-image file-name))
-          (dimensions (image-size image t))
-          (imagemagick-p (and (fboundp 'imagemagick-types) 'imagemagick)))
-                                          ; See if we want to rescale the image
-      (if (and erc-image-inline-rescale
-              (not (image-multi-frame-p image)))
-          ;; Rescale based on erc-image-rescale
-          (cond (;; Numeric: scale down to that size
-                (numberp erc-image-inline-rescale)
-                (if (> (cdr dimensions) erc-image-inline-rescale)
-                    (create-image file-name imagemagick-p nil :height erc-image-inline-rescale)
-                  image))
-                (;; 'window: scale down to window size, if bigger
-                (eq erc-image-inline-rescale 'window)
-                ;; But only if the image is greater than the window size
-                (if (or (> (car dimensions) width)
-                        (> (cdr dimensions) height))
-                    ;; Figure out in which direction we need to scale
-                    (if (> width height)
-                        (create-image file-name imagemagick-p nil :height  height)
-                      (create-image file-name imagemagick-p nil :width width))
-                  ;; Image is smaller than window, just give that back
-                  image))
-                (t (progn (message "Error: none of the rescaling options matched") image)))
-        ;; No rescale
-        image)))
-
-  (dw/ctrl-c-keys
-    "c"  '(:ignore t :which-key "chat")
-    "cb" 'erc-switch-to-buffer
-    "cc" 'dw/connect-irc
-    "ca" 'erc-track-switch-buffer)
-
-  (setup (:pkg 0x0 :host gitlab :repo "willvaughn/emacs-0x0"))
-
-  (setup (:pkg elfeed)
-    (setq elfeed-feeds
-      '("https://nullprogram.com/feed/"
-        "https://ambrevar.xyz/atom.xml"
-        "https://guix.gnu.org/feeds/blog.atom"
-        "https://valdyas.org/fading/feed/"
-        "https://www.reddit.com/r/emacs/.rss")))
-
-  (setup (:pkg mpv :straight t))
-
-  (setup (:pkg emms)
-    (require 'emms-setup)
-    (emms-standard)
-    (emms-default-players)
-    (emms-mode-line-disable)
-    (setq emms-source-file-default-directory "~/Music/")
-    (dw/leader-key-def
-      "am"  '(:ignore t :which-key "media")
-      "amp" '(emms-pause :which-key "play / pause")
-      "amf" '(emms-play-file :which-key "play file")))
-
-  (setup (:pkg elpher))
+  (add-to-list 'load-path "~/.evil.emacs.d/core")
+  (add-to-list 'load-path "~/.evil.emacs.d/modules")
+  (require 'core-lib)
+  (require 'core-helper)
+
+  (require 'org+capture)
+  (require 'org+agenda)
+  (require 'core-keybinds)
 
   (setup (:pkg guix))
 
@@ -1943,17 +1110,6 @@
   (defun dw/bluetooth-disconnect ()
     (interactive)
     (start-process-shell-command "bluetoothctl" nil "bluetoothctl -- disconnect"))
-
-  (setup proced
-    (setq proced-auto-update-interval 1)
-    (add-hook 'proced-mode-hook
-              (lambda ()
-                (proced-toggle-auto-update 1))))
-
-  (setup (:pkg docker)
-    (:also-load docker-tramp))
-
-  (setup (:pkg docker-tramp))
 
   ;; Make gc pauses faster by decreasing the threshold.
   (setq gc-cons-threshold (* 2 1000 1000))

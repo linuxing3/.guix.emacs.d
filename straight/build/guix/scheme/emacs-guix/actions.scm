@@ -1,0 +1,1 @@
+/home/vagrant/.guix.emacs.d/straight/repos/guix.el/scheme/emacs-guix/actions.scm

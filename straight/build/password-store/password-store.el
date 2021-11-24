@@ -1,0 +1,1 @@
+/home/vagrant/.guix.emacs.d/straight/repos/password-store/contrib/emacs/password-store.el
